@@ -4,6 +4,9 @@
 		game.stars = [];
 		game.width = 550;
 		game.height = 600;
+		game.images = [];
+		game.doneImages = 0;
+		game.requiredImages = 0;
 
 		game.contextBackground = document.getElementById("backgroundCanvas").getContext("2d");
 		game.contextPlayer = document.getElementById("playerCanvas").getContext("2d");
@@ -17,6 +20,7 @@
 					size: Math.random() * 5
 				});
 			}
+			game.contextPlayer.drawImage(game.images[1], 10, 10, 100, 100);
 			loop();
 		}
 
@@ -33,7 +37,7 @@
 		function update() {
 			addStars(1);
 			for (i in game.stars) {
-				if(game.stars.y <= -5){
+				if (game.stars.y <= -5) {
 					game.stars.splice(i, 1);
 				}
 				game.stars[i].y--;
@@ -51,12 +55,39 @@
 
 		function loop() {
 			requestAnimFrame(function() {
-				update();
-				render();
 				loop();
 			});
+			update();
+			render();
 		}
-		init();
+
+		function initImages(paths){
+			game.requiredImages = paths.length;
+			for (i in paths){
+				var image = new Image();
+				image.src = paths[i];
+				game.images[i] = image;
+				game.images[i].onload = function(){
+					game.doneImages++;
+				}
+			}
+		}
+
+		function checkImages(){
+			if(game.doneImages >= game.requiredImages){
+				init();
+			}else{
+				setTimeout(function(){
+					checkImages();	
+				}, 1);
+			}
+		}
+
+		game.contextBackground.font = "bold 50px monaco";
+		game.contextBackground.fillStyle = "white";
+		game.contextBackground.fillText("Loading..", game.width / 2 - 100, game.height / 2);
+		initImages(["player.png", "enemy.png", "bullet.png"]);
+		checkImages();
 	});
 })();
 
