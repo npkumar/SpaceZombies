@@ -4,12 +4,28 @@
 		game.stars = [];
 		game.width = 550;
 		game.height = 600;
+		game.x = 0;
+		game.y = 0;
+		game.keys = [];
 		game.images = [];
 		game.doneImages = 0;
 		game.requiredImages = 0;
 
 		game.contextBackground = document.getElementById("backgroundCanvas").getContext("2d");
 		game.contextPlayer = document.getElementById("playerCanvas").getContext("2d");
+
+		/*
+		 * up : 38, down: 40, left : 37, right: 39
+		 * space: 32
+		 * w: 87, a: 65, s: 83, d: 68
+		 **/
+		$(document).keydown(function(e) {
+			game.keys[e.keyCode ? e.keyCode : e.which] = true;
+		});
+
+		$(document).keyup(function(e) {
+			delete game.keys[e.keyCode ? e.keyCode : e.which];
+		});
 
 		function init() {
 			// fill background with stars initially.
@@ -20,7 +36,7 @@
 					size: Math.random() * 5
 				});
 			}
-			game.contextPlayer.drawImage(game.images[1], 10, 10, 100, 100);
+			//game.contextPlayer.drawImage(game.images[1], 10, 10, 100, 100);
 			loop();
 		}
 
@@ -42,6 +58,14 @@
 				}
 				game.stars[i].y--;
 			}
+			// left
+			if (game.keys[37]) {
+				game.x--;
+			}
+			// right
+			if (game.keys[39]) {
+				game.x++;
+			}
 		}
 
 		function render() {
@@ -51,6 +75,7 @@
 				var star = game.stars[i];
 				game.contextBackground.fillRect(star.x, star.y, star.size, star.size);
 			}
+			game.contextPlayer.drawImage(game.images[0], game.x, game.y);
 		}
 
 		function loop() {
@@ -61,24 +86,24 @@
 			render();
 		}
 
-		function initImages(paths){
+		function initImages(paths) {
 			game.requiredImages = paths.length;
-			for (i in paths){
+			for (i in paths) {
 				var image = new Image();
 				image.src = paths[i];
 				game.images[i] = image;
-				game.images[i].onload = function(){
+				game.images[i].onload = function() {
 					game.doneImages++;
 				}
 			}
 		}
 
-		function checkImages(){
-			if(game.doneImages >= game.requiredImages){
+		function checkImages() {
+			if (game.doneImages >= game.requiredImages) {
 				init();
-			}else{
-				setTimeout(function(){
-					checkImages();	
+			} else {
+				setTimeout(function() {
+					checkImages();
 				}, 1);
 			}
 		}
