@@ -11,6 +11,11 @@
 		game.doneImages = 0;
 		game.requiredImages = 0;
 
+		game.count = 24;
+		game.division = 48;
+		game.left = false;
+		game.enemySpeed = 2;
+
 		game.player = {
 			x: game.width / 2 - 50,
 			y: game.height - 110,
@@ -20,8 +25,10 @@
 			rendered: false
 		};
 
+		game.enemies = [];
 		game.contextBackground = document.getElementById("backgroundCanvas").getContext("2d");
 		game.contextPlayer = document.getElementById("playerCanvas").getContext("2d");
+		game.contextEnemies = document.getElementById("enemiesCanvas").getContext("2d");
 
 		/*
 		 * up : 38, down: 40, left : 37, right: 39
@@ -45,7 +52,18 @@
 					size: Math.random() * 5
 				});
 			}
-			//game.contextPlayer.drawImage(game.images[1], 10, 10, 100, 100);
+
+			for (var y = 0; y < 5; y++) {
+				for (var x = 0; x < 5; x++) {
+					game.enemies.push({
+						x: x * 80 + 80,
+						y: y * 80 + 40,
+						width: 70,
+						height: 70,
+						image: 1
+					});
+				}
+			}
 			loop();
 		}
 
@@ -61,6 +79,8 @@
 
 		function update() {
 			addStars(1);
+			game.count++;
+
 			for (i in game.stars) {
 				if (game.stars.y <= -5) {
 					game.stars.splice(i, 1);
@@ -81,6 +101,19 @@
 					game.player.rendered = false;
 				}
 			}
+
+			if (game.count % game.division == 0) {
+				game.left = !game.left;
+			}
+
+			for (var i in game.enemies) {
+				if (game.left) {
+					game.enemies[i].x -= game.enemySpeed;
+				} else {
+					game.enemies[i].x += game.enemySpeed;
+				}
+			}
+
 		}
 
 		function render() {
@@ -95,6 +128,12 @@
 				game.contextPlayer.clearRect(game.player.x - 10, game.player.y - 10, game.player.width + 20, game.player.height + 20)
 				game.contextPlayer.drawImage(game.images[0], game.player.x, game.player.y, game.player.width, game.player.height);
 				game.player.rendered = true;
+			}
+
+			for (var i in game.enemies) {
+				var enemy = game.enemies[i];
+				game.contextEnemies.clearRect(enemy.x, enemy.y, enemy.width, enemy.height);
+				game.contextEnemies.drawImage(game.images[enemy.image], enemy.x, enemy.y, enemy.width, enemy.height);
 			}
 		}
 
