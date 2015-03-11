@@ -20,7 +20,7 @@
 		game.shootTimer = game.fullShootTimer;
 
 		game.gameOver = false;
-		game.gameWon = true;
+		game.gameWon = false;
 
 		game.moving = false;
 
@@ -89,7 +89,7 @@
 
 			setTimeout(function() {
 				game.moving = true;
-			}, 1000);
+			}, 6000);
 		}
 
 		function addStars(num) {
@@ -184,6 +184,10 @@
 					game.enemies.splice(i, 1);
 				}
 			}
+
+			if (game.enemies.length <= 0) {
+				game.gameWon = true;
+			}
 		}
 
 		function render() {
@@ -213,9 +217,14 @@
 			}
 
 			if (game.gameOver) {
-				game.contextBackground.font = "bold 30px monaco";
-				game.contextBackground.fillStyle = "white";
-				game.contextBackground.fillText("Zombie Apocalypse!", game.width / 2 - 150, game.height / 2);
+				game.contextPlayer.font = "bold 30px monaco";
+				game.contextPlayer.fillStyle = "white";
+				game.contextPlayer.fillText("Zombie Apocalypse!", game.width / 2 - 150, game.height / 2);
+			}
+			if (game.gameWon) {
+				game.contextPlayer.font = "bold 30px monaco";
+				game.contextPlayer.fillStyle = "white";
+				game.contextPlayer.fillText("You Saved Earth!", game.width / 2 - 150, game.height / 2);
 			}
 		}
 
