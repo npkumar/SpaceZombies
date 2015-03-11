@@ -11,6 +11,15 @@
 		game.doneImages = 0;
 		game.requiredImages = 0;
 
+		game.player = {
+			x: game.width / 2 - 50,
+			y: game.height - 110,
+			width: 100,
+			height: 100,
+			speed: 3,
+			rendered: false
+		};
+
 		game.contextBackground = document.getElementById("backgroundCanvas").getContext("2d");
 		game.contextPlayer = document.getElementById("playerCanvas").getContext("2d");
 
@@ -58,13 +67,19 @@
 				}
 				game.stars[i].y--;
 			}
-			// left
-			if (game.keys[37]) {
-				game.x--;
+			//left
+			if (game.keys[37] || game.keys[65]) {
+				if (game.player.x >= 0) {
+					game.player.x -= game.player.speed;
+					game.player.rendered = false;
+				}
 			}
-			// right
-			if (game.keys[39]) {
-				game.x++;
+			//right
+			if (game.keys[39] || game.keys[68]) {
+				if (game.player.x <= game.width - game.player.width) {
+					game.player.x += game.player.speed;
+					game.player.rendered = false;
+				}
 			}
 		}
 
@@ -75,7 +90,12 @@
 				var star = game.stars[i];
 				game.contextBackground.fillRect(star.x, star.y, star.size, star.size);
 			}
-			game.contextPlayer.drawImage(game.images[0], game.x, game.y);
+
+			if (!game.player.rendered) {
+				game.contextPlayer.clearRect(game.player.x - 10, game.player.y - 10, game.player.width + 20, game.player.height + 20)
+				game.contextPlayer.drawImage(game.images[0], game.player.x, game.player.y, game.player.width, game.player.height);
+				game.player.rendered = true;
+			}
 		}
 
 		function loop() {
