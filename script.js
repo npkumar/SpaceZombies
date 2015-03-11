@@ -16,7 +16,7 @@
 		game.left = false;
 		game.enemySpeed = 2;
 
-		game.fullShootTimer = 10;
+		game.fullShootTimer = 20;
 		game.shootTimer = game.fullShootTimer;
 
 		game.player = {
@@ -74,7 +74,9 @@
 						y: y * 80 + 40,
 						width: 70,
 						height: 70,
-						image: 1
+						image: 1,
+						dead: false,
+						deadTime: 20
 					});
 				}
 			}
@@ -141,6 +143,26 @@
 				game.shootTimer = game.fullShootTimer;
 			}
 
+			for (var e in game.enemies){
+				for (var p in game.projectiles){
+					if(collision(game.enemies[e], game.projectiles[p])){
+						game.enemies[e].dead = true;
+						game.enemies[e].image = 3;
+						game.contextEnemies.clearRect(game.projectiles[p].x, game.projectiles[p].y, game.projectiles[p].size, game.projectiles[p].size);
+						game.projectiles.splice(p, 1);
+					}
+				}
+			}
+
+			for(var i in game.enemies){
+				if(game.enemies[i].dead){
+					game.enemies[i].deadTime--;
+				}
+				if(game.enemies[i].dead && game.enemies[i].deadTime <= 0){
+					game.contextEnemies.clearRect(game.enemies[i].x, game.enemies[i].y, game.enemies[i].width, game.enemies[i].height);
+					game.enemies.splice(i, 1);
+				}
+			}
 		}
 
 		function render() {
@@ -190,6 +212,13 @@
 			}
 		}
 
+		function collision(enemy, projectile) {
+			return !(enemy.x > projectile.x + projectile.size ||
+				enemy.x + enemy.width < projectile.x ||
+				enemy.y > enemy.y + projectile.size ||
+				enemy.y + enemy.height < projectile.y);
+		}
+
 		function checkImages() {
 			if (game.doneImages >= game.requiredImages) {
 				init();
@@ -203,7 +232,7 @@
 		game.contextBackground.font = "bold 50px monaco";
 		game.contextBackground.fillStyle = "white";
 		game.contextBackground.fillText("Loading..", game.width / 2 - 100, game.height / 2);
-		initImages(["player.png", "enemy.png", "bullet.png"]);
+		initImages(["player.png", "enemy.png", "bullet.png", "explosion.png"]);
 		checkImages();
 	});
 })();
