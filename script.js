@@ -16,6 +16,9 @@
 		game.left = false;
 		game.enemySpeed = 2;
 
+		game.fullShootTimer = 10;
+		game.shootTimer = game.fullShootTimer;
+
 		game.player = {
 			x: game.width / 2 - 50,
 			y: game.height - 110,
@@ -24,6 +27,8 @@
 			speed: 3,
 			rendered: false
 		};
+
+		game.projectiles = [];
 
 		game.enemies = [];
 		game.contextBackground = document.getElementById("backgroundCanvas").getContext("2d");
@@ -42,6 +47,15 @@
 		$(document).keyup(function(e) {
 			delete game.keys[e.keyCode ? e.keyCode : e.which];
 		});
+
+		function addBullet() {
+			game.projectiles.push({
+				x: game.player.x,
+				y: game.player.y,
+				size: 20,
+				image: 2
+			});
+		}
 
 		function init() {
 			// fill background with stars initially.
@@ -80,6 +94,7 @@
 		function update() {
 			addStars(1);
 			game.count++;
+			if (game.shootTimer > 0) game.shootTimer--;
 
 			for (i in game.stars) {
 				if (game.stars.y <= -5) {
@@ -114,6 +129,18 @@
 				}
 			}
 
+			for (var i in game.projectiles) {
+				game.projectiles[i].y -= 3;
+				if (game.projectiles[i].y <= -(game.projectiles[i].size)) {
+					game.projectiles.splice(i, 1);
+				}
+			}
+
+			if (game.keys[32] && game.shootTimer <= 0) {
+				addBullet();
+				game.shootTimer = game.fullShootTimer;
+			}
+
 		}
 
 		function render() {
@@ -134,6 +161,12 @@
 				var enemy = game.enemies[i];
 				game.contextEnemies.clearRect(enemy.x, enemy.y, enemy.width, enemy.height);
 				game.contextEnemies.drawImage(game.images[enemy.image], enemy.x, enemy.y, enemy.width, enemy.height);
+			}
+
+			for (var i in game.projectiles) {
+				var projectile = game.projectiles[i];
+				game.contextEnemies.clearRect(projectile.x, projectile.y, projectile.size, projectile.size);
+				game.contextEnemies.drawImage(game.images[projectile.image], projectile.x, projectile.y, projectile.size, projectile.size);
 			}
 		}
 
