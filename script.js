@@ -19,6 +19,11 @@
 		game.fullShootTimer = 20;
 		game.shootTimer = game.fullShootTimer;
 
+		game.gameOver = false;
+		game.gameWon = true;
+
+		game.moving = false;
+
 		game.player = {
 			x: game.width / 2 - 50,
 			y: game.height - 110,
@@ -81,6 +86,10 @@
 				}
 			}
 			loop();
+
+			setTimeout(function() {
+				game.moving = true;
+			}, 1000);
 		}
 
 		function addStars(num) {
@@ -106,16 +115,20 @@
 			}
 			//left
 			if (game.keys[37] || game.keys[65]) {
-				if (game.player.x >= 0) {
-					game.player.x -= game.player.speed;
-					game.player.rendered = false;
+				if (!game.gameOver) {
+					if (game.player.x >= 0) {
+						game.player.x -= game.player.speed;
+						game.player.rendered = false;
+					}
 				}
 			}
 			//right
 			if (game.keys[39] || game.keys[68]) {
-				if (game.player.x <= game.width - game.player.width) {
-					game.player.x += game.player.speed;
-					game.player.rendered = false;
+				if (!game.gameOver) {
+					if (game.player.x <= game.width - game.player.width) {
+						game.player.x += game.player.speed;
+						game.player.rendered = false;
+					}
 				}
 			}
 
@@ -124,10 +137,18 @@
 			}
 
 			for (var i in game.enemies) {
-				if (game.left) {
-					game.enemies[i].x -= game.enemySpeed;
-				} else {
-					game.enemies[i].x += game.enemySpeed;
+				if (!game.moving) {
+					if (game.left) {
+						game.enemies[i].x -= game.enemySpeed;
+					} else {
+						game.enemies[i].x += game.enemySpeed;
+					}
+				}
+				if (game.moving) {
+					game.enemies[i].y++;
+				}
+				if (game.enemies[i].y >= game.height) {
+					game.gameOver = true;
 				}
 			}
 
@@ -143,9 +164,9 @@
 				game.shootTimer = game.fullShootTimer;
 			}
 
-			for (var e in game.enemies){
-				for (var p in game.projectiles){
-					if(collision(game.enemies[e], game.projectiles[p])){
+			for (var e in game.enemies) {
+				for (var p in game.projectiles) {
+					if (collision(game.enemies[e], game.projectiles[p])) {
 						game.enemies[e].dead = true;
 						game.enemies[e].image = 3;
 						game.contextEnemies.clearRect(game.projectiles[p].x, game.projectiles[p].y, game.projectiles[p].size, game.projectiles[p].size);
@@ -154,11 +175,11 @@
 				}
 			}
 
-			for(var i in game.enemies){
-				if(game.enemies[i].dead){
+			for (var i in game.enemies) {
+				if (game.enemies[i].dead) {
 					game.enemies[i].deadTime--;
 				}
-				if(game.enemies[i].dead && game.enemies[i].deadTime <= 0){
+				if (game.enemies[i].dead && game.enemies[i].deadTime <= 0) {
 					game.contextEnemies.clearRect(game.enemies[i].x, game.enemies[i].y, game.enemies[i].width, game.enemies[i].height);
 					game.enemies.splice(i, 1);
 				}
@@ -189,6 +210,12 @@
 				var projectile = game.projectiles[i];
 				game.contextEnemies.clearRect(projectile.x, projectile.y, projectile.size, projectile.size);
 				game.contextEnemies.drawImage(game.images[projectile.image], projectile.x, projectile.y, projectile.size, projectile.size);
+			}
+
+			if (game.gameOver) {
+				game.contextBackground.font = "bold 30px monaco";
+				game.contextBackground.fillStyle = "white";
+				game.contextBackground.fillText("Zombie Apocalypse!", game.width / 2 - 150, game.height / 2);
 			}
 		}
 
