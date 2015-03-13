@@ -40,6 +40,9 @@
 		game.contextPlayer = document.getElementById("playerCanvas").getContext("2d");
 		game.contextEnemies = document.getElementById("enemiesCanvas").getContext("2d");
 
+		game.shootSound = new Audio("shoot.wav");
+		game.explosionSound = new Audio("explosion.wav");
+
 		/*
 		 * up : 38, down: 40, left : 37, right: 39
 		 * space: 32
@@ -55,7 +58,7 @@
 
 		function addBullet() {
 			game.projectiles.push({
-				x: game.player.x,
+				x: game.player.x + game.player.width / 2,
 				y: game.player.y,
 				size: 20,
 				image: 2
@@ -104,7 +107,10 @@
 
 		function update() {
 			addStars(1);
+
 			game.count++;
+			if (game.count > 100000) count = 0;
+
 			if (game.shootTimer > 0) game.shootTimer--;
 
 			for (i in game.stars) {
@@ -161,6 +167,7 @@
 
 			if (game.keys[32] && game.shootTimer <= 0) {
 				addBullet();
+				game.shootSound.play();
 				game.shootTimer = game.fullShootTimer;
 			}
 
@@ -168,6 +175,7 @@
 				for (var p in game.projectiles) {
 					if (collision(game.enemies[e], game.projectiles[p])) {
 						game.enemies[e].dead = true;
+						game.explosionSound.play();
 						game.enemies[e].image = 3;
 						game.contextEnemies.clearRect(game.projectiles[p].x, game.projectiles[p].y, game.projectiles[p].size, game.projectiles[p].size);
 						game.projectiles.splice(p, 1);
@@ -188,6 +196,14 @@
 			if (game.enemies.length <= 0) {
 				game.gameWon = true;
 			}
+
+			//reload if game over
+			$('canvas').click(function(e) {
+				if (game.gameOver) {
+					location.reload();
+				}
+			});
+
 		}
 
 		function render() {
@@ -230,7 +246,7 @@
 
 		function loop() {
 			requestAnimFrame(function() {
-				loop();
+					loop();
 			});
 			update();
 			render();
